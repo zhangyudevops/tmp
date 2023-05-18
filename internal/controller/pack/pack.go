@@ -3,6 +3,7 @@ package pack
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	apiv1 "pack/api/pkg/v1"
 	"pack/internal/service"
@@ -40,6 +41,11 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	theNewestPath, err := service.File().GetNewestPkgDir(ctx, sortFileShellScript, CurrentPackPath)
 	if err != nil {
 		return nil, err
+	}
+	g.Log().Debugf(ctx, "The newest path is: %s", theNewestPath)
+	// if the newest path is empty, return error
+	if theNewestPath == "" {
+		return nil, fmt.Errorf("the newest path is empty")
 	}
 	if err = gfile.CopyDir(theNewestPath, CurrentPackPath); err != nil {
 		return nil, err

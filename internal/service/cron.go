@@ -14,7 +14,7 @@ func Cron() *sCron {
 
 var cron *gcron.Cron
 
-func (s *sCron) cronClient() {
+func NewCron() {
 	cron = gcron.New()
 }
 
@@ -36,6 +36,7 @@ func (s *sCron) cleanHarborImagesCronJob(ctx context.Context) (err error) {
 }
 
 func CronSetUp() {
+	NewCron()
 	_ = Cron().cleanHarborImagesCronJob(context.Background())
 	cron.Start("CleanHarborImagesCronJob")
 }

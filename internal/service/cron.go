@@ -19,16 +19,24 @@ func NewCron() {
 }
 
 // cleanHarborImagesCronJob clean harbor images cron task
-func (s *sCron) cleanHarborImagesCronJob(ctx context.Context) (err error) {
+func (s *sCron) cleanHarborImagesCronJob(ctx context.Context, pattern string) (err error) {
 	// set cron task
-	if _, err = cron.Add(ctx, "@every 3m", func(ctx context.Context) {
+	if _, err = cron.Add(ctx, pattern, func(ctx context.Context) {
 		if err = Clean().HarborImageClean(ctx); err != nil {
-			g.Log().Error(ctx, err)
 			return
 		}
-		g.Log().Info(ctx, "clean harbor images cron job success")
 	}, "CleanHarborImagesCronJob"); err != nil {
-		g.Log().Error(ctx, err)
+		return
+	}
+
+	return
+}
+
+// addAllCronJobs add all cron jobs
+func (s *sCron) addAllCronJobs(ctx context.Context) (err error) {
+	// add clean harbor images cron job
+	pattern, _ := Config().ParseConfig(ctx, "cron.harbor")
+	if err = Cron().cleanHarborImagesCronJob(ctx, pattern); err != nil {
 		return
 	}
 
@@ -37,6 +45,8 @@ func (s *sCron) cleanHarborImagesCronJob(ctx context.Context) (err error) {
 
 func CronSetUp() {
 	NewCron()
-	_ = Cron().cleanHarborImagesCronJob(context.Background())
-	cron.Start("CleanHarborImagesCronJob")
+	if err := Cron().addAllCronJobs(context.Background()); err != nil {
+		g.Log().Error(context.Background(), err)
+	}
+	cron.Start()
 }

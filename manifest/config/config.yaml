@@ -17,6 +17,10 @@ harbor:
   password: "Harbor12345"
   cron: "0 0 0 */3 * *"
 
+# cron job execute time
+cron:
+  harbor: "0 0 0 */15 * *"
+
 kube:
   config: "manifest/config/kube"
 

@@ -17,6 +17,9 @@ func Pack() *cPack {
 }
 
 func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) (res *apiv1.PackUpdatePkgRes, err error) {
+	if req.Images == nil {
+		return nil, fmt.Errorf("images is empty")
+	}
 	// create today's directory
 	filePath, _ := service.Config().ParseConfig(ctx, "package.path")
 	CurrentPackPath := filePath + "/" + docker.TodayDate()

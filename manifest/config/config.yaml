@@ -1,0 +1,27 @@
+server:
+  address:     ":9527"
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+
+logger:
+  level : "all"
+  stdout: true
+
+file:
+  path: "/Users/zhangyu/Documents/develop/python/learn"
+#  path: "/files"
+
+harbor:
+  ip: "172.27.15.33"
+  username: "admin"
+  password: "Harbor12345"
+  cron: "0 0 0 */3 * *"
+
+kube:
+  config: "manifest/config/kube"
+
+script:
+  path: "manifest/script"
+
+package:
+  path: "manifest/package"

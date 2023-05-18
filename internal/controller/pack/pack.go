@@ -29,17 +29,12 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 		}
 	}
 
-	// create the current package directory
-	//err = service.Path().CreateDir(ctx, CurrentPackPath)
-	//if err != nil {
-	//	return nil, err
-	//}
-
 	// copy the newest package directory to the current package directory
 	scriptFilePath, _ := service.Config().ParseConfig(ctx, "script.path")
 	sortFileShellScript := fmt.Sprintf("%s/list_dir_sorted.sh", scriptFilePath)
 	theNewestPath, err := service.File().GetNewestPkgDir(ctx, sortFileShellScript, filePath)
 	if err != nil {
+		g.Log().Error(ctx, err)
 		return nil, err
 	}
 	g.Log().Debugf(ctx, "The newest path is: %s", theNewestPath)

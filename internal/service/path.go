@@ -32,7 +32,7 @@ func (s *sPath) CreateDir(ctx context.Context, path string) error {
 	return nil
 }
 
-func (s *sPath) copyFileAndDir(src, dst string) error {
+func (s *sPath) CopyFileAndDir(src, dst string) error {
 	return gfile.Copy(src, dst)
 }
 

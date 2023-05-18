@@ -30,11 +30,11 @@ func (s *sFile) Upload(ctx context.Context, inFile *ghttp.UploadFiles, path stri
 	return fileList, nil
 }
 
-// extraTarGzip 解压tar.gz文件
+// ExtraTarGzip 解压tar.gz文件
 // file: 文件路径
 // dst: 解压后的文件存放路径
 // return: err, 解压后的文件路径
-func (s *sFile) extraTarGzip(ctx context.Context, file, dst string) error {
+func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 	var out string
 	// 读取文件
 	fr, err := os.Open(file)
@@ -91,6 +91,7 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	argsList[0] = pkgPath
 	err, bytes := Shell().Exec(ctx, file, argsList)
 	if err != nil {
+		g.Log().Error(ctx, err)
 		return "", err
 	}
 
@@ -101,6 +102,6 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	return
 }
 
-func (s *sFile) deleteCurrentDir(ctx context.Context, dir string) error {
+func (s *sFile) DeleteCurrentDir(ctx context.Context, dir string) error {
 	return os.RemoveAll(dir)
 }

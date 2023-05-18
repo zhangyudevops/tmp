@@ -30,15 +30,15 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	}
 
 	// create the current package directory
-	err = service.Path().CreateDir(ctx, CurrentPackPath)
-	if err != nil {
-		return nil, err
-	}
+	//err = service.Path().CreateDir(ctx, CurrentPackPath)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	// copy the newest package directory to the current package directory
 	scriptFilePath, _ := service.Config().ParseConfig(ctx, "script.path")
 	sortFileShellScript := fmt.Sprintf("%s/list_dir_sorted.sh", scriptFilePath)
-	theNewestPath, err := service.File().GetNewestPkgDir(ctx, sortFileShellScript, CurrentPackPath)
+	theNewestPath, err := service.File().GetNewestPkgDir(ctx, sortFileShellScript, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +47,22 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	if theNewestPath == "" {
 		return nil, fmt.Errorf("the newest path is empty")
 	}
-	if err = gfile.CopyDir(theNewestPath, CurrentPackPath); err != nil {
-		return nil, err
+	// copy the newest dir to the current update dir
+	if err = service.Path().CopyFileAndDir(theNewestPath, CurrentPackPath); err != nil {
+		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
+		return
+	}
+
+	// uncompressed the images.tar.gz file
+	imagesDstPath := CurrentPackPath + "/images"
+	if err = service.File().ExtraTarGzip(ctx, CurrentPackPath+"/images.tar.gz", imagesDstPath); err != nil {
+		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
+		return
+	} else {
+		// delete the images.tar.gz file
+		if err = gfile.Remove(CurrentPackPath + "/images.tar.gz"); err != nil {
+			return
+		}
 	}
 
 	// request images list pull from harbor and save it to local

@@ -17,7 +17,7 @@ func Pack() *cPack {
 }
 
 func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) (res *apiv1.PackUpdatePkgRes, err error) {
-	if req.Images == nil {
+	if len(req.Images) == 0 {
 		return nil, fmt.Errorf("images is empty")
 	}
 	// create today's directory

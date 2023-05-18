@@ -12,10 +12,16 @@ func Cron() *sCron {
 	return &sCron{}
 }
 
-// CleanHarborImagesCronJob clean harbor images cron task
-func (s *sCron) CleanHarborImagesCronJob(ctx context.Context) (err error) {
+var cron *gcron.Cron
+
+func (s *sCron) cronClient() {
+	cron = gcron.New()
+}
+
+// cleanHarborImagesCronJob clean harbor images cron task
+func (s *sCron) cleanHarborImagesCronJob(ctx context.Context) (err error) {
 	// set cron task
-	if _, err = gcron.Add(ctx, "@every 3m", func(ctx context.Context) {
+	if _, err = cron.Add(ctx, "@every 3m", func(ctx context.Context) {
 		if err = Clean().HarborImageClean(ctx); err != nil {
 			g.Log().Error(ctx, err)
 			return
@@ -27,4 +33,9 @@ func (s *sCron) CleanHarborImagesCronJob(ctx context.Context) (err error) {
 	}
 
 	return
+}
+
+func CronSetUp() {
+	_ = Cron().cleanHarborImagesCronJob(context.Background())
+	cron.Start("CleanHarborImagesCronJob")
 }

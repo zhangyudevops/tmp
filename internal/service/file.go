@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"io"
 	"os"
@@ -95,6 +96,7 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 
 	// 获取最新的包目录
 	pkgDirList := strings.Split(string(bytes), "	")
+	g.Log().Debugf(ctx, "Under the directory %s has: %s", pkgPath, pkgDirList)
 	newPath = pkgDirList[len(pkgDirList)-1]
 	return
 }

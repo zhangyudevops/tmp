@@ -33,9 +33,9 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	}
 
 	// create the current package directory
-	if err = service.Path().CreateDir(ctx, CurrentPackPath); err != nil {
-		return
-	}
+	//if err = service.Path().CreateDir(ctx, CurrentPackPath); err != nil {
+	//	return
+	//}
 
 	// copy the newest package directory to the current package directory
 	scriptFilePath, _ := service.Config().ParseConfig(ctx, "script.path")

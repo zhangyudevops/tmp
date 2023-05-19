@@ -111,10 +111,7 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	g.Log().Debugf(ctx, "the list length is %d", len(pkgDirList))
 	if len(pkgDirList) > 0 {
 		g.Log().Debugf(ctx, "(loop) The newest pkg dir is %v", pkgDirList[len(pkgDirList)-1])
-		if gfile.IsDir(pkgDirList[len(pkgDirList)-1]) {
-			newPath = pkgDirList[len(pkgDirList)-2]
-		}
-		newPath = pkgDirList[len(pkgDirList)-1]
+		newPath = pkgDirList[0]
 	}
 	return
 }

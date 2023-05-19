@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gfile"
 	"io"
@@ -86,31 +85,55 @@ func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 	return err
 }
 
-// GetNewestPkgDir 获取pkg目录下最新的包目录
-func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newPath string, err error) {
-	// 获取pkg目录下的所有目录
-	argsList := make([]string, 1)
-	argsList[0] = pkgPath
-	g.Log().Debugf(ctx, "The script is %s %s", file, argsList)
-	err, bytes := Shell().Exec(ctx, file, argsList)
+// CompressTarGzip compress path directory to tar.gz file
+// @todo: need to be tested
+func (s *sFile) CompressTarGzip(ctx context.Context, path, name string) error {
+	// create tar.gz file
+	fw, err := os.Create(name)
 	if err != nil {
-		g.Log().Error(ctx, err)
-		return "", err
+		return err
 	}
-
-	// through the lines in the output, join to a slice of strings
-	pkgDirList := strings.Split(string(bytes), "\n")
-	for i, s2 := range pkgDirList {
-		if !gfile.IsDir(s2) {
-			continue
+	defer fw.Close()
+	// gzip writer
+	gw := gzip.NewWriter(fw)
+	defer gw.Close()
+	// tar writer
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
+	// get file list
+	list, err := gfile.ScanDir(path, "*", true)
+	if err != nil {
+		return err
+	}
+	// write file
+	for _, file := range list {
+		// open file
+		fr, err := os.Open(file)
+		if err != nil {
+			return err
 		}
-		pkgDirList[i] = strings.TrimSpace(s2)
+		defer fr.Close()
+		// get file info
+		fi, err := fr.Stat()
+		if err != nil {
+			return err
+		}
+		// write file header
+		hdr := &tar.Header{
+			Name:    fi.Name(),
+			Size:    fi.Size(),
+			Mode:    int64(fi.Mode()),
+			ModTime: fi.ModTime(),
+		}
+		if err = tw.WriteHeader(hdr); err != nil {
+			return err
+		}
+		// write file content
+		if _, err = io.Copy(tw, fr); err != nil {
+			return err
+		}
 	}
-	// 获取最新的包目录
-	if len(pkgDirList) > 0 {
-		newPath = pkgDirList[0]
-	}
-	return
+	return nil
 }
 
 func (s *sFile) DeleteCurrentDir(ctx context.Context, dir string) error {

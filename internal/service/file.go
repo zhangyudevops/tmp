@@ -89,6 +89,7 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	// 获取pkg目录下的所有目录
 	argsList := make([]string, 1)
 	argsList[0] = pkgPath
+	g.Log().Debugf(ctx, "The script is %s %s", file, argsList)
 	err, bytes := Shell().Exec(ctx, file, argsList)
 	if err != nil {
 		g.Log().Error(ctx, err)
@@ -98,12 +99,10 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	// through the lines in the output, join to a slice of strings
 	pkgDirList := strings.Split(string(bytes), "\n")
 
-	//g.Log().Debugf(ctx, "Under the directory strings %s has: %s", pkgPath, pathList)
-	//pkgDirList := strings.Split(string(bytes), "")
 	g.Log().Debugf(ctx, "Under the directory %s has: %s", pkgPath, pkgDirList)
 	// 获取最新的包目录
 	if len(pkgDirList) > 0 {
-		if pkgDirList[len(pkgDirList)-1] == "" {
+		if pkgDirList[len(pkgDirList)-1] == " " {
 			newPath = pkgDirList[len(pkgDirList)-2]
 		}
 		newPath = pkgDirList[len(pkgDirList)-1]

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gfile"
 	"io"
 	"os"
 	"strings"
@@ -99,21 +100,17 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	// through the lines in the output, join to a slice of strings
 	pkgDirList := strings.Split(string(bytes), "\n")
 	for i, s2 := range pkgDirList {
-		if len(s2) == 0 {
+		if !gfile.IsDir(s2) {
 			continue
 		}
 		pkgDirList[i] = strings.TrimSpace(s2)
-		g.Log().Debugf(ctx, "The pkg dir is %s", pkgDirList[i])
 	}
 	g.Log().Debugf(ctx, "Under the directory %s has: %s", pkgPath, pkgDirList)
 	// 获取最新的包目录
 	if len(pkgDirList) > 0 {
-		g.Log().Debugf(ctx, "The newest pkg dir 1 is %s", pkgDirList[len(pkgDirList)-1])
-		g.Log().Debugf(ctx, "The newest pkg dir  2 is %s", pkgDirList[len(pkgDirList)-2])
-		g.Log().Debugf(ctx, "The newest pkg dir 3 is %s", pkgDirList[len(pkgDirList)])
-		if pkgDirList[len(pkgDirList)-1] == " " {
-			newPath = pkgDirList[len(pkgDirList)-2]
-		}
+		//if gfile.IsDir(pkgDirList[len(pkgDirList)-1]) {
+		//	newPath = pkgDirList[len(pkgDirList)-2]
+		//}
 		newPath = pkgDirList[len(pkgDirList)-1]
 	}
 	return

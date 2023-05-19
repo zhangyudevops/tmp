@@ -99,7 +99,7 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 	// through the lines in the output, join to a slice of strings
 	pkgDirList := strings.Split(string(bytes), "\n")
 	for i, s2 := range pkgDirList {
-		if strings.Contains(s2, " ") {
+		if len(s2) == 0 {
 			continue
 		}
 		pkgDirList[i] = strings.TrimSpace(s2)

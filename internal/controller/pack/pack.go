@@ -38,19 +38,25 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	//}
 
 	// copy the newest package directory to the current package directory
-	scriptFilePath, _ := service.Config().ParseConfig(ctx, "script.path")
-	sortFileShellScript := fmt.Sprintf("%s/list_dir_sorted.sh", scriptFilePath)
-	theNewestPath, err := service.File().GetNewestPkgDir(ctx, sortFileShellScript, filePath)
+	//scriptFilePath, _ := service.Config().ParseConfig(ctx, "script.path")
+	//sortFileShellScript := fmt.Sprintf("%s/list_dir_sorted.sh", scriptFilePath)
+	//theNewestPath, err := service.File().GetNewestPkgDir(ctx, sortFileShellScript, filePath)
+	//if err != nil {
+	//	g.Log().Error(ctx, err)
+	//	return nil, err
+	//}
+	//g.Log().Debugf(ctx, "The newest path is: %s", theNewestPath)
+	//// if the newest path is empty, return error
+	//if theNewestPath == "" {
+	//	return nil, fmt.Errorf("the newest path is empty")
+	//}
+	// copy the newest dir to the current update dir
+
+	theNewestPath, err := service.File().GetNewestDir(ctx, filePath)
 	if err != nil {
-		g.Log().Error(ctx, err)
 		return nil, err
 	}
 	g.Log().Debugf(ctx, "The newest path is: %s", theNewestPath)
-	// if the newest path is empty, return error
-	if theNewestPath == "" {
-		return nil, fmt.Errorf("the newest path is empty")
-	}
-	// copy the newest dir to the current update dir
 	if err = service.Path().CopyFileAndDir(theNewestPath, CurrentPackPath); err != nil {
 		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
 		return

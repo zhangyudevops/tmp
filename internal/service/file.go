@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 )
 
 type sFile struct{}
@@ -114,4 +115,32 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 
 func (s *sFile) DeleteCurrentDir(ctx context.Context, dir string) error {
 	return os.RemoveAll(dir)
+}
+
+func (s *sFile) GetNewestDir(ctx context.Context, pkgPath string) (newPath string, err error) {
+	list, err := gfile.ScanDir(pkgPath, "*", false)
+	if err != nil {
+		return
+	}
+	if len(list) > 0 {
+		// just get directory
+		for i, s2 := range list {
+			if !gfile.IsDir(s2) {
+				continue
+			}
+			list[i] = strings.TrimSpace(s2)
+		}
+
+		// sort list by time
+		var stat = time.Unix(0, 0).Unix()
+		for _, s2 := range list {
+			statPath, _ := gfile.Stat(s2)
+			if stat < statPath.ModTime().Unix() {
+				newPath = s2
+			}
+
+		}
+	}
+
+	return
 }

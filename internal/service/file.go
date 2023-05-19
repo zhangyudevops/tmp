@@ -98,7 +98,9 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 
 	// through the lines in the output, join to a slice of strings
 	pkgDirList := strings.Split(string(bytes), "\n")
-
+	for i, s2 := range pkgDirList {
+		pkgDirList[i] = strings.TrimSpace(s2)
+	}
 	g.Log().Debugf(ctx, "Under the directory %s has: %s", pkgPath, pkgDirList)
 	// 获取最新的包目录
 	if len(pkgDirList) > 0 {

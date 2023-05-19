@@ -103,7 +103,7 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 			continue
 		}
 		pkgDirList[i] = strings.TrimSpace(s2)
-
+		g.Log().Debugf(ctx, "The pkg dir is %s", pkgDirList[i])
 	}
 	g.Log().Debugf(ctx, "Under the directory %s has: %s", pkgPath, pkgDirList)
 	// 获取最新的包目录

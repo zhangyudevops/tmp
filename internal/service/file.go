@@ -60,7 +60,7 @@ func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 			return err
 		}
 
-		out = fmt.Sprintf("%s%s", dst, hdr.Name)
+		out = fmt.Sprintf("%s/%s", dst, hdr.Name)
 		// 判断文件类型
 		switch hdr.Typeflag {
 		case tar.TypeDir:
@@ -104,13 +104,9 @@ func (s *sFile) GetNewestPkgDir(ctx context.Context, file, pkgPath string) (newP
 			continue
 		}
 		pkgDirList[i] = strings.TrimSpace(s2)
-		g.Log().Debugf(ctx, "The pkg dir is %s", pkgDirList[i])
 	}
-	g.Log().Debugf(ctx, "Under the directory %s has: %s", pkgPath, pkgDirList)
 	// 获取最新的包目录
-	g.Log().Debugf(ctx, "the list length is %d", len(pkgDirList))
 	if len(pkgDirList) > 0 {
-		g.Log().Debugf(ctx, "(loop) The newest pkg dir is %v", pkgDirList[len(pkgDirList)-1])
 		newPath = pkgDirList[0]
 	}
 	return

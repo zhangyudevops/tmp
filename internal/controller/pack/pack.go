@@ -57,8 +57,7 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	}
 
 	// uncompressed the images.tar.gz file
-	imagesDstPath := CurrentPackPath + "/images"
-	if err = service.File().ExtraTarGzip(ctx, CurrentPackPath+"/images.tar.gz", imagesDstPath); err != nil {
+	if err = service.File().ExtraTarGzip(ctx, CurrentPackPath+"/images.tar.gz", CurrentPackPath); err != nil {
 		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
 		return
 	} else {
@@ -71,6 +70,7 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	// request images list pull from harbor and save it to local
 	dstPath := CurrentPackPath + "/images"
 	if err = service.Docker().PullImageAndSaveToLocal(ctx, dstPath, req.Images); err != nil {
+		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
 		return nil, err
 	}
 

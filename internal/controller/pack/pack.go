@@ -61,16 +61,14 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 	}
 
 	// compress the today's directory
-	if err = service.File().CompressTarGzip(ctx, CurrentPackPath, CurrentPackPath+".tar.gz"); err != nil {
+	if err = service.File().CompressTarGzip(ctx, dstPath, CurrentPackPath+"/"+docker.TodayDate()+".tar.gz"); err != nil {
 		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
-		g.Log().Errorf(ctx, "Compress the package directory failed: %s", err.Error())
+		g.Log().Errorf(ctx, "Compress the today's directory failed: %s", err.Error())
 		return nil, err
 	} else {
 		// delete the today's directory
-		if err = gfile.Remove(CurrentPackPath); err != nil {
-			return nil, err
-		}
-		g.Log().Infof(ctx, "Compress the package directory %s successfully", CurrentPackPath+".tar.gz")
+		_ = service.File().DeleteCurrentDir(ctx, dstPath)
+		g.Log().Infof(ctx, "Compress the today's directory %s successfully", CurrentPackPath+".tar.gz")
 	}
 
 	return &apiv1.PackUpdatePkgRes{}, nil

@@ -19,7 +19,7 @@ func (c *cPath) ListFilesOrDirs(ctx context.Context, req *apiv1.FilesOrDirsListR
 		path, _ := service.Config().ParseConfig(ctx, "package.path")
 		req.Path = path
 	}
-	// 判断path是否是目录，如果是目录，就返回目录下的文件列表，如果是文件，就返回空
+	// if req.Path is directory, list the first layer files and dirs, if req.Path is file, return the file name
 	var list []string
 	if gfile.IsDir(req.Path) {
 		g.Log().Debugf(ctx, "path %s is a directory", req.Path)
@@ -28,6 +28,7 @@ func (c *cPath) ListFilesOrDirs(ctx context.Context, req *apiv1.FilesOrDirsListR
 			return nil, err
 		}
 	} else {
+		list = append(list, req.Path)
 		g.Log().Debugf(ctx, "path %s is a file", req.Path)
 	}
 

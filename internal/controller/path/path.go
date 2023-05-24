@@ -22,7 +22,7 @@ func (c *cPath) ListFilesOrDirs(ctx context.Context, req *apiv1.FilesOrDirsListR
 	// 判断path是否是目录，如果是目录，就返回目录下的文件列表，如果是文件，就返回空
 	var list []string
 	if gfile.IsDir(req.Path) {
-		g.Log().Debugf(ctx, "path %s is a directory", req.Path
+		g.Log().Debugf(ctx, "path %s is a directory", req.Path)
 		list, err = service.Path().GetFile(ctx, req.Path, req.Pattern)
 		if err != nil {
 			return nil, err

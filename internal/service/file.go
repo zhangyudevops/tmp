@@ -86,6 +86,52 @@ func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 	return err
 }
 
+func (s *sFile) UnCompressFile(ctx context.Context, file, dst string) error {
+	// 打开 .tgz 文件
+	f, err := os.Open(file)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	// 创建 gzip.Reader
+	gzipReader, err := gzip.NewReader(f)
+	if err != nil {
+		panic(err)
+	}
+	defer gzipReader.Close()
+
+	// 创建 tar.Reader
+	tarReader := tar.NewReader(gzipReader)
+
+	// 解压文件
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		// 创建文件
+		path := fmt.Sprintf("%s/%s", dst, header.Name)
+		f, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		// 写入文件内容
+		_, err = io.Copy(f, tarReader)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return err
+}
+
 // CompressTarGzip compress path directory to tar.gz file
 func (s *sFile) CompressTarGzip(ctx context.Context, source, target string) error {
 	// 创建目标文件

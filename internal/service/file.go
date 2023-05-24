@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/os/gfile"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -87,53 +88,64 @@ func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 
 // CompressTarGzip compress path directory to tar.gz file
 // @todo: need to be tested
-func (s *sFile) CompressTarGzip(ctx context.Context, path, name string) error {
-	// create tar.gz file
-	fw, err := os.Create(name)
+func (s *sFile) CompressTarGzip(ctx context.Context, source, target string) error {
+	// 创建目标文件
+	targetFile, err := os.Create(target)
 	if err != nil {
 		return err
 	}
-	defer fw.Close()
-	// gzip writer
-	gw := gzip.NewWriter(fw)
-	defer gw.Close()
-	// tar writer
-	tw := tar.NewWriter(gw)
-	defer tw.Close()
-	// get file list
-	list, err := gfile.ScanDir(path, "*", true)
-	if err != nil {
-		return err
-	}
-	// write file
-	for _, file := range list {
-		// open file
-		fr, err := os.Open(file)
+	defer targetFile.Close()
+
+	// 创建gzip压缩器
+	gzipWriter := gzip.NewWriter(targetFile)
+	defer gzipWriter.Close()
+
+	// 创建tar打包器
+	tarWriter := tar.NewWriter(gzipWriter)
+	defer tarWriter.Close()
+
+	// 遍历源文件夹
+	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		defer fr.Close()
-		// get file info
-		fi, err := fr.Stat()
+
+		// 获取相对路径
+		relPath, err := filepath.Rel(source, path)
 		if err != nil {
 			return err
 		}
-		// write file header
-		hdr := &tar.Header{
-			Name:    fi.Name(),
-			Size:    fi.Size(),
-			Mode:    int64(fi.Mode()),
-			ModTime: fi.ModTime(),
-		}
-		if err = tw.WriteHeader(hdr); err != nil {
+
+		// 创建tar文件头
+		header, err := tar.FileInfoHeader(info, relPath)
+		if err != nil {
 			return err
 		}
-		// write file content
-		if _, err = io.Copy(tw, fr); err != nil {
+
+		// 写入文件头
+		err = tarWriter.WriteHeader(header)
+		if err != nil {
 			return err
 		}
-	}
-	return nil
+
+		// 如果是文件，写入文件内容
+		if !info.IsDir() {
+			file, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			_, err = io.Copy(tarWriter, file)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	return err
 }
 
 func (s *sFile) DeleteCurrentDir(ctx context.Context, dir string) error {

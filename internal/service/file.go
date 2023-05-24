@@ -87,7 +87,6 @@ func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 }
 
 // CompressTarGzip compress path directory to tar.gz file
-// @todo: need to be tested
 func (s *sFile) CompressTarGzip(ctx context.Context, source, target string) error {
 	// 创建目标文件
 	targetFile, err := os.Create(target)

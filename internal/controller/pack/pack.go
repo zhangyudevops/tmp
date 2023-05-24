@@ -56,7 +56,7 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 
 	// @todo: 只是作为测试，如果解压了传统上面的images.tar.gz文件，需要把里层images目录下的文件移动到dstPath目录下,并删掉images目录
 	if gfile.Exists(dstPath + "/images") {
-		if err = gfile.Move(dstPath+"/images", dstPath); err != nil {
+		if err = gfile.CopyDir(dstPath+"/images", dstPath); err != nil {
 			return
 		} else {
 			err = service.File().DeleteCurrentDir(ctx, dstPath+"/images")

@@ -16,7 +16,7 @@ func Pack() *cPack {
 	return &cPack{}
 }
 
-func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) (res *apiv1.PackUpdatePkgRes, err error) {
+func (c *cPack) PackUpdateImagesPkg(ctx context.Context, req *apiv1.PackUpdateImagesReq) (res *apiv1.PackUpdateImagesRes, err error) {
 	if len(req.Images) == 0 {
 		return nil, fmt.Errorf("images is empty")
 	}
@@ -80,5 +80,5 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 		g.Log().Infof(ctx, "Compress the today's directory %s successfully", CurrentPackPath+"/"+"images.tar.gz")
 	}
 
-	return &apiv1.PackUpdatePkgRes{}, nil
+	return &apiv1.PackUpdateImagesRes{}, nil
 }

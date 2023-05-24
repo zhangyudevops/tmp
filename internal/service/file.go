@@ -172,7 +172,7 @@ func (s *sFile) GetNewestDir(ctx context.Context, pkgPath string) (newPath strin
 		var stat = time.Unix(0, 0).Unix()
 		for _, s2 := range list {
 			statPath, _ := gfile.Stat(s2)
-			g.Log().Debugf(ctx, "statPath: %v", statPath)
+			g.Log().Debugf(ctx, "file: %v, modeTime: %v", s2, statPath.ModTime())
 			if stat < statPath.ModTime().Unix() {
 				newPath = s2
 			}

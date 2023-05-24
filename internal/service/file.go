@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gfile"
 	"io"
@@ -165,11 +166,13 @@ func (s *sFile) GetNewestDir(ctx context.Context, pkgPath string) (newPath strin
 			}
 			list[i] = strings.TrimSpace(s2)
 		}
+		g.Log().Debugf(ctx, "list: %v", list)
 
 		// sort list by time
 		var stat = time.Unix(0, 0).Unix()
 		for _, s2 := range list {
 			statPath, _ := gfile.Stat(s2)
+			g.Log().Debugf(ctx, "statPath: %v", statPath)
 			if stat < statPath.ModTime().Unix() {
 				newPath = s2
 			}

@@ -59,8 +59,7 @@ func (c *cPack) PackUpdatePkg(ctx context.Context, req *apiv1.PackUpdatePkgReq) 
 		if err = gfile.CopyDir(dstPath+"/images", dstPath); err != nil {
 			return
 		} else {
-			err = service.File().DeleteCurrentDir(ctx, dstPath+"/images")
-			return
+			_ = service.File().DeleteCurrentDir(ctx, dstPath+"/images")
 		}
 	}
 

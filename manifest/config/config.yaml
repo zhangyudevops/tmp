@@ -29,3 +29,13 @@ script:
 
 package:
   path: "manifest/package"
+
+database:
+  default:
+    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(172.27.15.188:3306)/tokyohot?loc=Local&parseTime=true"
+
+gfcli:
+  gen:
+    dao:
+      - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(172.27.15.188:3306)/tokyohot?loc=Local&parseTime=true"
+        tables: "user"

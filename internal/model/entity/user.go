@@ -11,4 +11,5 @@ type User struct {
 	Password string `json:"password" ` // 密码
 	Nickname string `json:"nickname" ` // 用户别名
 	Email    string `json:"email"    ` // 邮箱
+	Salt     string `json:"salt"     ` // 密码加盐
 }

@@ -16,4 +16,5 @@ type User struct {
 	Password interface{} // 密码
 	Nickname interface{} // 用户别名
 	Email    interface{} // 邮箱
+	Salt     interface{} // 密码加盐
 }

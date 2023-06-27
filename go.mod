@@ -3,8 +3,11 @@ module pack
 go 1.20
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v23.0.3+incompatible
-	github.com/gogf/gf/v2 v2.3.3
+	github.com/goflyfox/gtoken v1.5.8
+	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.4.4
+	github.com/gogf/gf/v2 v2.4.4
 	k8s.io/apimachinery v0.26.3
 	k8s.io/client-go v0.26.3
 )
@@ -25,6 +28,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/swag v0.19.14 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect

@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
+	"errors"
 	"pack/internal/dao"
+	"pack/internal/model"
 	"pack/internal/model/entity"
+	"pack/utility/util"
 )
 
 type sUser struct{}
@@ -13,29 +15,42 @@ func User() *sUser {
 	return &sUser{}
 }
 
-func (s *sUser) CreateUser(ctx context.Context, user entity.User) (err error) {
-	// 这里需要对password进行加密解密
-	if _, err = dao.User.Ctx(ctx).Data(user).Insert(); err != nil {
-		return
+func (s *sUser) CreateUser(ctx context.Context, user *model.User) (err error) {
+	var userInfo *entity.User
+	// 查看用户是否存在
+	if err, _ = s.GetUserInfo(ctx, user.Username); err == nil {
+		return errors.New("user already exists")
 	}
 
-	return
-}
-
-func (s *sUser) GetUserInfo(ctx context.Context, username string) (err error, user string) {
-	ret, err := dao.User.Ctx(ctx).Where("username=?", username).One()
+	// 生成salt
+	salt, err := util.GenerateSalt()
 	if err != nil {
 		return
 	}
-	return err, ret.Json()
-}
 
-func (s *sUser) UpdateUser(ctx context.Context, user entity.User) (err error) {
-	if ret, err := dao.User.Ctx(ctx).Data(user).Where(user.Username).Update(user); err != nil {
+	// 对password进行加密
+	password := util.HashPassword(user.Password, salt)
+
+	userInfo = &entity.User{
+		Username: user.Username,
+		Password: password,
+		Salt:     salt,
+		Nickname: user.NickName,
+		Email:    user.Email,
+	}
+
+	if _, err = dao.User.Ctx(ctx).Data(userInfo).Insert(); err != nil {
 		return
-	} else {
-		g.Log().Debugf(ctx, "update user success: %s", ret)
 	}
 
 	return
+}
+
+func (s *sUser) GetUserInfo(ctx context.Context, username string) (err error, user interface{}) {
+	userInfo := entity.User{}
+	err = dao.User.Ctx(ctx).Where("username=?", username).Scan(&userInfo)
+	if err != nil {
+		return
+	}
+	return err, userInfo
 }

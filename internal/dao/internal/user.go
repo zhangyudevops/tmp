@@ -25,6 +25,7 @@ type UserColumns struct {
 	Password string // 密码
 	Nickname string // 用户别名
 	Email    string // 邮箱
+	Salt     string // 密码加盐
 }
 
 // userColumns holds the columns for table user.
@@ -34,6 +35,7 @@ var userColumns = UserColumns{
 	Password: "password",
 	Nickname: "nickname",
 	Email:    "email",
+	Salt:     "salt",
 }
 
 // NewUserDao creates and returns a new DAO object for table data access.

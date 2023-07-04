@@ -435,11 +435,11 @@ func (s *sK8S) CopyFileToPod(ctx context.Context, containerInfo *model.Execute, 
 
 	// 设置执行选项
 	execOptions := &corev1.PodExecOptions{
-		//Command: []string{"sh"},
-		Stdin:  false,
-		Stdout: true,
-		Stderr: true,
-		TTY:    false,
+		Command: []string{"sh"},
+		Stdin:   false,
+		Stdout:  true,
+		Stderr:  true,
+		TTY:     false,
 	}
 
 	// 序列化

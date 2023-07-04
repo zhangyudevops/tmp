@@ -35,8 +35,8 @@ func (s *sCron) cleanHarborImagesCronJob(ctx context.Context, pattern string) (e
 // addAllCronJobs add all cron jobs
 func (s *sCron) addAllCronJobs(ctx context.Context) (err error) {
 	// add clean harbor images cron job
-	pattern, _ := Config().ParseConfig(ctx, "cron.harbor")
-	if err = Cron().cleanHarborImagesCronJob(ctx, pattern); err != nil {
+	pattern, _ := g.Config().Get(ctx, "cron.harbor")
+	if err = Cron().cleanHarborImagesCronJob(ctx, pattern.String()); err != nil {
 		return
 	}
 

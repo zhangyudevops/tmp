@@ -21,8 +21,8 @@ func (c *cPack) PackUpdateImagesPkg(ctx context.Context, req *apiv1.PackUpdateIm
 		return nil, fmt.Errorf("images is empty")
 	}
 	// create today's directory
-	filePath, _ := service.Config().ParseConfig(ctx, "package.path")
-	CurrentPackPath := filePath + "/" + docker.TodayDate()
+	filePath, _ := g.Config().Get(ctx, "package.path")
+	CurrentPackPath := filePath.String() + "/" + docker.TodayDate()
 
 	// if the current package directory was existed, delete it
 	if gfile.Exists(CurrentPackPath) {
@@ -32,7 +32,7 @@ func (c *cPack) PackUpdateImagesPkg(ctx context.Context, req *apiv1.PackUpdateIm
 		}
 	}
 
-	theNewestPath, err := service.File().GetNewestDir(ctx, filePath)
+	theNewestPath, err := service.File().GetNewestDir(ctx, filePath.String())
 	if err != nil {
 		return nil, err
 	}

@@ -180,10 +180,10 @@ func (s *sHarbor) DeleteTag(ctx context.Context, pName, rName, digest string) er
 func (s *sHarbor) CreateGcCron(ctx context.Context) error {
 	url := s.Url() + "/system/gc/schedule"
 	// get cron from config
-	cron, _ := Config().ParseConfig(ctx, "harbor.cron")
+	cron, _ := g.Config().Get(ctx, "harbor.cron")
 
 	scheduleCron := &model.Schedule{
-		Cron: cron,
+		Cron: cron.String(),
 		Type: "Custom",
 	}
 	r, err := s.Client().ContentJson().Post(ctx, url, g.Map{"schedule": scheduleCron})

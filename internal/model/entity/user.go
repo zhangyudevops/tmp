@@ -6,7 +6,7 @@ package entity
 
 // User is the golang structure for table user.
 type User struct {
-	Id       int    `json:"id"       ` // 自增id
+	Id       uint   `json:"id"       ` // 自增id
 	Username string `json:"username" ` // 用户名
 	Password string `json:"password" ` // 密码
 	Nickname string `json:"nickname" ` // 用户别名

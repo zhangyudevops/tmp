@@ -9,11 +9,10 @@ import (
 )
 
 var shareInformerFactory informers.SharedInformerFactory
+var ClientSets = NewClients()
 
 func NewSharedInformerFactory(stopCh <-chan struct{}) (err error) {
-	clients := NewClients()
-	g.Log().Info(context.TODO(), "k8s客户端成功初始化")
-	shareInformerFactory = informers.NewSharedInformerFactory(clients.clientSet, time.Hour*24*2)
+	shareInformerFactory = informers.NewSharedInformerFactory(ClientSets.clientSet, time.Hour*24*2)
 
 	// group version
 	groupVersionResourceVars := []schema.GroupVersionResource{

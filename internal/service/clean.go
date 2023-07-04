@@ -40,8 +40,8 @@ func (s *sClean) HarborImageClean(ctx context.Context) error {
 						if err != nil {
 							return err
 						}
-						ip, _ := Config().ParseConfig(ctx, "harbor.ip")
-						g.Log().Debugf(ctx, "delete tag: %s", ip+"/"+project.Name+"/"+repoName+":"+tag.Tags[0].Name)
+						ip, _ := g.Config().Get(ctx, "harbor.ip")
+						g.Log().Debugf(ctx, "delete tag: %s", ip.String()+"/"+project.Name+"/"+repoName+":"+tag.Tags[0].Name)
 					}
 				}
 			}

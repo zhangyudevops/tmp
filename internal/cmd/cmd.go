@@ -10,6 +10,7 @@ import (
 	"pack/internal/controller/docker"
 	"pack/internal/controller/file"
 	"pack/internal/controller/harbor"
+	"pack/internal/controller/k8s"
 	"pack/internal/controller/pack"
 	"pack/internal/controller/path"
 	"pack/internal/controller/user"
@@ -26,9 +27,13 @@ var (
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			s := g.Server()
 
+			// 获取token配置
+			cacheMode, _ := g.Config().Get(ctx, "token.cacheMode")
 			// 启动gToken
 			gfToken := &gtoken.GfToken{
 				ServerName:       "pack",
+				CacheMode:        cacheMode.Int8(),
+				CacheKey:         "login_token",
 				LoginPath:        "/login",
 				LoginBeforeFunc:  loginFunc,
 				LoginAfterFunc:   loginAfter,
@@ -52,6 +57,7 @@ var (
 					clean.Clean(),
 					pack.Pack(),
 					user.User(),
+					k8s.K8S(),
 				)
 			})
 			s.Run()

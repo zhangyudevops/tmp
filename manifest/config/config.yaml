@@ -30,12 +30,19 @@ script:
 package:
   path: "manifest/package"
 
+redis:
+  default:
+    address: "127.0.0.1:6379"
+
+token:
+  cacheMode: 2
+
 database:
   default:
-    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(172.27.15.188:3306)/tokyohot?loc=Local&parseTime=true"
+    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(localhost:3306)/tokyohot?loc=Local&parseTime=true"
 
 gfcli:
   gen:
     dao:
-      - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(172.27.15.188:3306)/tokyohot?loc=Local&parseTime=true"
-        tables: "user"
+      - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(localhost:3306)/tokyohot?loc=Local&parseTime=true"
+        tables: "user,setting"

@@ -5,8 +5,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"pack/internal/service"
 )
 
 type Clients struct {
@@ -14,14 +14,19 @@ type Clients struct {
 	dynamicClient dynamic.Interface
 }
 
-func NewClients() (client Clients) {
-	kubeConfig, _ := service.Config().ParseConfig(context.TODO(), "kube.config")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
+func NewConfig() (config *rest.Config) {
+	kubeConfig, _ := g.Config().Get(context.TODO(), "kube.config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig.String())
 	if err != nil {
 		g.Log().Error(context.TODO(), err)
 		return
 	}
+	return
+}
 
+func NewClients() (client Clients) {
+	var err error
+	config := NewConfig()
 	client.clientSet, err = kubernetes.NewForConfig(config)
 	if err != nil {
 		g.Log().Error(context.TODO(), err)

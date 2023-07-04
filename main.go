@@ -2,10 +2,11 @@ package main
 
 import (
 	_ "github.com/gogf/gf/contrib/drivers/mysql/v2"
+	_ "github.com/gogf/gf/contrib/nosql/redis/v2"
 	"github.com/gogf/gf/v2/os/gctx"
 	"pack/internal/cmd"
+	"pack/internal/logic/kube"
 	"pack/internal/service"
-	"pack/internal/service/kube"
 )
 
 func main() {

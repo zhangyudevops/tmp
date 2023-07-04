@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 )
 
@@ -15,8 +16,8 @@ func Pack() *sPack {
 // if the package.path is /data/package, the newest package is /data/package/tmp
 // check the directory /data/package/tmp, if the directory was existed, delete it, and create a new directory
 func (s *sPack) PackTarFiles(ctx context.Context, images []string) (err error) {
-	pkgPath, _ := Config().ParseConfig(ctx, "package.path")
-	packageDir := pkgPath + "/tmp"
+	pkgPath, _ := g.Config().Get(ctx, "package.path")
+	packageDir := pkgPath.String() + "/tmp"
 	// if the directory was existed, delete it
 	if gfile.Exists(packageDir) {
 		if err = gfile.Remove(packageDir); err != nil {

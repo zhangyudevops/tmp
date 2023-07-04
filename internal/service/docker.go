@@ -29,13 +29,13 @@ func Docker() *sDocker {
 
 // init initial harbor auth info
 func init() {
-	username, _ := Config().ParseConfig(context.TODO(), "harbor.username")
-	password, _ := Config().ParseConfig(context.TODO(), "harbor.password")
-	ip, _ := Config().ParseConfig(context.TODO(), "harbor.ip")
+	username, _ := g.Config().Get(context.TODO(), "harbor.username")
+	password, _ := g.Config().Get(context.TODO(), "harbor.password")
+	ip, _ := g.Config().Get(context.TODO(), "harbor.ip")
 	AuthArgs = &model.AuthArgs{
-		IP:       ip,
-		Username: username,
-		Password: password,
+		IP:       ip.String(),
+		Username: username.String(),
+		Password: password.String(),
 	}
 }
 

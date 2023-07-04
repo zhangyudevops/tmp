@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 )
 
@@ -36,9 +37,10 @@ func (s *sPath) CopyFileAndDir(src, dst string) error {
 	return gfile.Copy(src, dst)
 }
 
-// GetFilePath returns the file path of the kube file path.
+// GetFilePath returns the file path of the k8s file path.
 func (s *sPath) getFilePath(ctx context.Context) (FilePath string, err error) {
-	return Config().ParseConfig(ctx, "file.path")
+	path, _ := g.Config().Get(ctx, "file.path")
+	return path.String(), err
 }
 
 // GetFile returns a list of files directory in the specified path.

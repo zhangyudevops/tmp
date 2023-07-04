@@ -107,10 +107,6 @@ func (s *sK8S) GetDeployPods(ctx context.Context, namespace string, label map[st
 		pods = append(pods, po)
 	}
 
-	err = s.CreateOrUpdateFromYamlFile(ctx, "")
-	if err != nil {
-		g.Dump(err)
-	}
 	return
 }
 

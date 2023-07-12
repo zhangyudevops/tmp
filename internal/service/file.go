@@ -86,111 +86,112 @@ func (s *sFile) ExtraTarGzip(ctx context.Context, file, dst string) error {
 	return err
 }
 
-func (s *sFile) UnCompressFile(ctx context.Context, file, dst string) error {
-	// 打开 .tgz 文件
-	f, err := os.Open(file)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	// 创建 gzip.Reader
-	gzipReader, err := gzip.NewReader(f)
-	if err != nil {
-		panic(err)
-	}
-	defer gzipReader.Close()
-
-	// 创建 tar.Reader
-	tarReader := tar.NewReader(gzipReader)
-
-	// 解压文件
-	for {
-		header, err := tarReader.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-
-		// 创建文件
-		path := fmt.Sprintf("%s/%s", dst, header.Name)
-		f, err := os.Create(path)
-		if err != nil {
-			panic(err)
-		}
-		defer f.Close()
-
-		// 写入文件内容
-		_, err = io.Copy(f, tarReader)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	return err
-}
-
 // CompressTarGzip compress path directory to tar.gz file
 func (s *sFile) CompressTarGzip(ctx context.Context, source, target string) error {
-	// 创建目标文件
-	targetFile, err := os.Create(target)
+	// if the source is a file, then compress it, if the source is a directory, then compress all files in it
+	if gfile.IsFile(source) {
+		return s.compressFile(ctx, source, target)
+	}
+	return s.compressDir(ctx, source, target)
+}
+
+func (s *sFile) compressFile(ctx context.Context, source, target string) error {
+	// create target file
+	fw, err := os.Create(target)
 	if err != nil {
 		return err
 	}
-	defer targetFile.Close()
+	defer fw.Close()
 
-	// 创建gzip压缩器
-	gzipWriter := gzip.NewWriter(targetFile)
-	defer gzipWriter.Close()
+	// create gzip writer
+	gw := gzip.NewWriter(fw)
+	defer gw.Close()
 
-	// 创建tar打包器
-	tarWriter := tar.NewWriter(gzipWriter)
-	defer tarWriter.Close()
+	// create tar writer
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
 
-	// 遍历源文件夹
-	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+	// open source file
+	fr, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+	defer fr.Close()
+
+	// get file info
+	fi, err := fr.Stat()
+	if err != nil {
+		return err
+	}
+
+	// write tar header
+	hdr := new(tar.Header)
+	hdr.Name = fi.Name()
+	hdr.Size = fi.Size()
+	hdr.Mode = int64(fi.Mode())
+	hdr.ModTime = fi.ModTime()
+
+	if err := tw.WriteHeader(hdr); err != nil {
+		return err
+	}
+
+	// write file content
+	if _, err := io.Copy(tw, fr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *sFile) compressDir(ctx context.Context, source, target string) error {
+	// create target file
+	fw, err := os.Create(target)
+	if err != nil {
+		return err
+	}
+	defer fw.Close()
+
+	// create gzip writer
+	gw := gzip.NewWriter(fw)
+	defer gw.Close()
+
+	// create tar writer
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
+
+	// walk path
+	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		// get file info
+		hdr, err := tar.FileInfoHeader(info, info.Name())
 		if err != nil {
 			return err
 		}
 
-		// 获取相对路径
-		relPath, err := filepath.Rel(source, path)
-		if err != nil {
+		// set header name
+		hdr.Name = strings.TrimPrefix(path, source)
+
+		// write tar header
+		if err := tw.WriteHeader(hdr); err != nil {
 			return err
 		}
 
-		// 创建tar文件头
-		header, err := tar.FileInfoHeader(info, relPath)
-		if err != nil {
-			return err
-		}
-
-		// 写入文件头
-		err = tarWriter.WriteHeader(header)
-		if err != nil {
-			return err
-		}
-
-		// 如果是文件，写入文件内容
+		// if not a dir, then write file content
 		if !info.IsDir() {
-			file, err := os.Open(path)
+			// open source file
+			fr, err := os.Open(path)
 			if err != nil {
 				return err
 			}
-			defer file.Close()
+			defer fr.Close()
 
-			_, err = io.Copy(tarWriter, file)
-			if err != nil {
+			// write file content
+			if _, err := io.Copy(tw, fr); err != nil {
 				return err
 			}
 		}
 
 		return nil
 	})
-
-	return err
 }
 
 func (s *sFile) DeleteCurrentDir(ctx context.Context, dir string) error {

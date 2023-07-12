@@ -4,9 +4,9 @@
 
 package entity
 
-// Service is the golang structure for table service.
-type Service struct {
-	Id        uint   `json:"id"        ` //
-	Namespace string `json:"namespace" ` //
-	Name      string `json:"name"      ` //
+// Image is the golang structure for table image.
+type Image struct {
+	Id   uint   `json:"id"   ` //
+	Name string `json:"name" ` // 应用名称
+	Tag  string `json:"tag"  ` // 镜像tag
 }

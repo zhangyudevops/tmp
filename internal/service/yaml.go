@@ -41,9 +41,9 @@ func (s *sYaml) RenderYamlFile(ctx context.Context, file string) (err error) {
 	if err != nil {
 		return
 	}
+	config := gconv.Map(data)
 
 	// 创建输出的yaml文件
-	config := gconv.Map(data)
 	outFile, err := os.Create("/Users/zhangsan/Documents/devops/go/pack/test/xx.yaml")
 	if err != nil {
 		return

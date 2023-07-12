@@ -15,3 +15,13 @@ CREATE TABLE `setting` (
                            `config` text NOT NULL COMMENT '配置文件变量全量json',
                            PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='配置变量';
+
+
+
+CREATE TABLE `image` (
+                         `id` int unsigned NOT NULL AUTO_INCREMENT,
+                         `name` varchar(60) COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用名称',
+                         `tag` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '镜像tag',
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `tag` (`tag`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='镜像详情';

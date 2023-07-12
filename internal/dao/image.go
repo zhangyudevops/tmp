@@ -8,19 +8,19 @@ import (
 	"pack/internal/dao/internal"
 )
 
-// internalServiceDao is internal type for wrapping internal DAO implements.
-type internalServiceDao = *internal.ServiceDao
+// internalImageDao is internal type for wrapping internal DAO implements.
+type internalImageDao = *internal.ImageDao
 
-// serviceDao is the data access object for table service.
+// imageDao is the data access object for table image.
 // You can define custom methods on it to extend its functionality as you wish.
-type serviceDao struct {
-	internalServiceDao
+type imageDao struct {
+	internalImageDao
 }
 
 var (
-	// Service is globally public accessible object for table service operations.
-	Service = serviceDao{
-		internal.NewServiceDao(),
+	// Image is globally public accessible object for table image operations.
+	Image = imageDao{
+		internal.NewImageDao(),
 	}
 )
 

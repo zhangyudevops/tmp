@@ -11,58 +11,58 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-// ServiceDao is the data access object for table service.
-type ServiceDao struct {
-	table   string         // table is the underlying table name of the DAO.
-	group   string         // group is the database configuration group name of current DAO.
-	columns ServiceColumns // columns contains all the column names of Table for convenient usage.
+// ImageDao is the data access object for table image.
+type ImageDao struct {
+	table   string       // table is the underlying table name of the DAO.
+	group   string       // group is the database configuration group name of current DAO.
+	columns ImageColumns // columns contains all the column names of Table for convenient usage.
 }
 
-// ServiceColumns defines and stores column names for table service.
-type ServiceColumns struct {
-	Id        string //
-	Namespace string //
-	Name      string //
+// ImageColumns defines and stores column names for table image.
+type ImageColumns struct {
+	Id   string //
+	Name string // 应用名称
+	Tag  string // 镜像tag
 }
 
-// serviceColumns holds the columns for table service.
-var serviceColumns = ServiceColumns{
-	Id:        "id",
-	Namespace: "namespace",
-	Name:      "name",
+// imageColumns holds the columns for table image.
+var imageColumns = ImageColumns{
+	Id:   "id",
+	Name: "name",
+	Tag:  "tag",
 }
 
-// NewServiceDao creates and returns a new DAO object for table data access.
-func NewServiceDao() *ServiceDao {
-	return &ServiceDao{
+// NewImageDao creates and returns a new DAO object for table data access.
+func NewImageDao() *ImageDao {
+	return &ImageDao{
 		group:   "default",
-		table:   "service",
-		columns: serviceColumns,
+		table:   "image",
+		columns: imageColumns,
 	}
 }
 
 // DB retrieves and returns the underlying raw database management object of current DAO.
-func (dao *ServiceDao) DB() gdb.DB {
+func (dao *ImageDao) DB() gdb.DB {
 	return g.DB(dao.group)
 }
 
 // Table returns the table name of current dao.
-func (dao *ServiceDao) Table() string {
+func (dao *ImageDao) Table() string {
 	return dao.table
 }
 
 // Columns returns all column names of current dao.
-func (dao *ServiceDao) Columns() ServiceColumns {
+func (dao *ImageDao) Columns() ImageColumns {
 	return dao.columns
 }
 
 // Group returns the configuration group name of database of current dao.
-func (dao *ServiceDao) Group() string {
+func (dao *ImageDao) Group() string {
 	return dao.group
 }
 
 // Ctx creates and returns the Model for current DAO, It automatically sets the context for current operation.
-func (dao *ServiceDao) Ctx(ctx context.Context) *gdb.Model {
+func (dao *ImageDao) Ctx(ctx context.Context) *gdb.Model {
 	return dao.DB().Model(dao.table).Safe().Ctx(ctx)
 }
 
@@ -72,6 +72,6 @@ func (dao *ServiceDao) Ctx(ctx context.Context) *gdb.Model {
 //
 // Note that, you should not Commit or Rollback the transaction in function f
 // as it is automatically handled by this function.
-func (dao *ServiceDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
+func (dao *ImageDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
 	return dao.Ctx(ctx).Transaction(ctx, f)
 }

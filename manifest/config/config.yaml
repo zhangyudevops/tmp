@@ -12,7 +12,7 @@ file:
 #  path: "/files"
 
 harbor:
-  ip: "172.27.15.33"
+  ip: "172.27.15.123"
   username: "admin"
   password: "Harbor12345"
   cron: "0 0 0 */3 * *"
@@ -45,4 +45,4 @@ gfcli:
   gen:
     dao:
       - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(localhost:3306)/tokyohot?loc=Local&parseTime=true"
-        tables: "user,setting"
+        tables: "user,setting,image"

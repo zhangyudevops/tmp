@@ -248,3 +248,33 @@ func (s *sDocker) saveImageTag(ctx context.Context, image string) error {
 	g.Log().Infof(ctx, "%s save as %s", image, saveTarFile)
 	return nil
 }
+
+// LoadImage load image from local
+// image: image tar file
+func (s *sDocker) LoadImage(ctx context.Context, image string) error {
+	f, err := os.Open(image)
+	if err != nil {
+		g.Log().Error(ctx, err.Error())
+		return err
+	}
+	defer f.Close()
+
+	res, err := s.Client().ImageLoad(ctx, f, false)
+	if err != nil {
+		g.Log().Error(ctx, err.Error())
+		return err
+	}
+	// 获取镜像名称
+	g.Dump(res.Body)
+
+	defer res.Body.Close()
+
+	err = docker.PrintDockerMsg(res.Body)
+	if err != nil {
+		g.Log().Error(ctx, err.Error())
+		return err
+	}
+
+	g.Log().Infof(ctx, "load image %s success", image)
+	return nil
+}

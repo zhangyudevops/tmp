@@ -14,12 +14,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
+	_ "k8s.io/kubectl/pkg/cmd/cp"
 	"os"
 	"pack/internal/logic/kube"
 	"pack/internal/model"
+	"path"
 	"strings"
+	_ "unsafe"
 )
 
 type sK8S struct{}
@@ -107,6 +109,10 @@ func (s *sK8S) GetDeployPods(ctx context.Context, namespace string, label map[st
 		pods = append(pods, po)
 	}
 
+	err = Update().PushNewImageToHarbor(ctx)
+	if err != nil {
+		g.Dump(err)
+	}
 	return
 }
 
@@ -400,66 +406,63 @@ func (s *sK8S) getSourceResult(ctx context.Context, namespace, kind, name string
 	return
 }
 
-// copyExecutor
-// args: in 需要拷贝的目录路径或者文件路径
-// args: out pod里面的目录路径
-func (s *sK8S) copyExecutor(ctx context.Context, containerInfo *model.Execute, in, out string) (executor *rest.Request) {
-	execRequest := kube.ClientSets.ClientSet().CoreV1().RESTClient().Post().
+// CopyToToPod use client-go, copy file or directory to pod
+func (s *sK8S) CopyToToPod(ctx context.Context, containerInfo *model.Execute, srcPath, destPath string) error {
+	restConfig := kube.NewConfig()
+	reader, writer := io.Pipe()
+
+	if !gfile.IsDir(srcPath) {
+		destPath = destPath + "/" + path.Base(srcPath)
+	}
+
+	go func() {
+		err := cpMakeTar(srcPath, destPath, writer)
+		if err != nil {
+			writer.CloseWithError(err)
+		} else {
+			writer.Close()
+		}
+	}()
+
+	var cmdArr []string
+
+	cmdArr = []string{"tar", "-xf", "-"}
+	destDir := path.Dir(destPath)
+	if len(destDir) > 0 {
+		cmdArr = append(cmdArr, "-C", destDir)
+	}
+
+	req := kube.ClientSets.ClientSet().CoreV1().RESTClient().Post().
 		Resource("pods").
-		Namespace(containerInfo.Namespace).
 		Name(containerInfo.PodName).
-		SubResource("exec")
+		Namespace(containerInfo.Namespace).
+		SubResource("exec").
+		VersionedParams(&corev1.PodExecOptions{
+			Container: containerInfo.ContainerName,
+			Command:   cmdArr,
+			Stdin:     true,
+			Stdout:    true,
+			Stderr:    true,
+			TTY:       false,
+		}, scheme.ParameterCodec)
 
-	// 根据需要拷贝的文件或者目录组装参数
-	if gfile.IsDir(in) {
-		execRequest.Param("container", containerInfo.ContainerName)
-		execRequest.Param("command", "cp")
-		execRequest.Param("command", "-r")
-		execRequest.Param("command", in+"/*")
-		execRequest.Param("command", out)
-	} else {
-		execRequest.Param("container", containerInfo.ContainerName)
-		execRequest.Param("command", "cp")
-		execRequest.Param("command", in)
-		execRequest.Param("command", out)
-	}
-
-	return execRequest
-}
-
-// CopyFileToPod
-// args: in 需要拷贝的目录路径或者文件路径
-// args: out pod里面的目录路径
-func (s *sK8S) CopyFileToPod(ctx context.Context, containerInfo *model.Execute, in, out string) (err error) {
-	execRequest := s.copyExecutor(ctx, containerInfo, in, out)
-
-	// 设置执行选项
-	execOptions := &corev1.PodExecOptions{
-		Command: []string{"sh"},
-		Stdin:   false,
-		Stdout:  true,
-		Stderr:  true,
-		TTY:     false,
-	}
-
-	// 序列化
-	execRequest.VersionedParams(
-		execOptions,
-		scheme.ParameterCodec,
-	)
-
-	// 执行
-	exec, err := remotecommand.NewSPDYExecutor(kube.NewConfig(), "POST", execRequest.URL())
+	exec, err := remotecommand.NewSPDYExecutor(restConfig, "POST", req.URL())
 	if err != nil {
-		return
+		return err
 	}
-	if err = exec.StreamWithContext(ctx, remotecommand.StreamOptions{
+
+	err = exec.StreamWithContext(ctx, remotecommand.StreamOptions{
+		Stdin:  reader,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 		Tty:    false,
-	}); err != nil {
-		return
+	})
+	if err != nil {
+		return err
 	}
-
-	return
+	g.Log().Debugf(ctx, " copy %s to %s path %s success", srcPath, containerInfo.PodName, destPath)
+	return nil
 }
+
+//go:linkname cpMakeTar k8s.io/kubectl/pkg/cmd/cp.makeTar
+func cpMakeTar(srcPath, destPath string, writer io.Writer) error

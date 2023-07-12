@@ -27,7 +27,7 @@ func (c *cK8S) CopyFileToPod(ctx context.Context, req *apiv1.CopyFileToPodReq) (
 		ContainerName: req.Container,
 	}
 
-	if err = service.K8S().CopyFileToPod(ctx, containerInfo, req.InPath, req.OutPath); err != nil {
+	if err = service.K8S().CopyToToPod(ctx, containerInfo, req.InPath, req.OutPath); err != nil {
 		return
 	}
 

@@ -47,13 +47,14 @@ func (c *cPack) PackUpdateImagesPkg(ctx context.Context, req *apiv1.PackUpdateIm
 	if err = service.File().ExtraTarGzip(ctx, CurrentPackPath+"/images.tar.gz", dstPath); err != nil {
 		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
 		return
-	} else {
-		// if uncompressed success, delete the images.tar.gz file
-		// delete the images.tar.gz file
-		if err = gfile.Remove(CurrentPackPath + "/images.tar.gz"); err != nil {
-			return
-		}
 	}
+	//else {
+	//	// if uncompressed success, delete the images.tar.gz file
+	//	// delete the images.tar.gz file
+	//	if err = gfile.Remove(CurrentPackPath + "/images.tar.gz"); err != nil {
+	//		return
+	//	}
+	//}
 
 	// @todo: 只是作为测试，如果解压了传统上面的images.tar.gz文件，需要把里层images目录下的文件移动到dstPath目录下,并删掉images目录
 	//if gfile.Exists(dstPath + "/images") {

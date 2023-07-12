@@ -44,7 +44,7 @@ func (c *cPack) PackUpdateImagesPkg(ctx context.Context, req *apiv1.PackUpdateIm
 
 	dstPath := CurrentPackPath + "/images"
 	// uncompressed the images.tar.gz file
-	if err = service.File().ExtraTarGzip(ctx, CurrentPackPath+"/images.tar.gz", dstPath); err != nil {
+	if err = service.File().ExtraTarGzip(ctx, CurrentPackPath+"/images.tar.gz", CurrentPackPath); err != nil {
 		_ = service.File().DeleteCurrentDir(ctx, CurrentPackPath)
 		return
 	} else {

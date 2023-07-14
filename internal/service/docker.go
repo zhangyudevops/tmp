@@ -165,7 +165,7 @@ func (s *sDocker) getImageProject(image string) string {
 	return strings.Split(image, "/")[1]
 }
 
-func (s *sDocker) TagDockerImage(ctx context.Context, image string) error {
+func (s *sDocker) TagDockerImage(ctx context.Context, image string) (error, string) {
 	var newImage string
 	// if image is private image, then modify image prefix
 	// else add image prefix
@@ -176,9 +176,9 @@ func (s *sDocker) TagDockerImage(ctx context.Context, image string) error {
 	}
 	err := s.tagImage(ctx, image, newImage)
 	if err != nil {
-		return err
+		return err, ""
 	}
-	return nil
+	return nil, newImage
 }
 
 func (s *sDocker) PushDockerImage(ctx context.Context, image string) (err error) {
@@ -251,30 +251,28 @@ func (s *sDocker) saveImageTag(ctx context.Context, image string) error {
 
 // LoadImage load image from local
 // image: image tar file
-func (s *sDocker) LoadImage(ctx context.Context, image string) error {
+func (s *sDocker) LoadImage(ctx context.Context, image string) (error, string) {
 	f, err := os.Open(image)
 	if err != nil {
-		g.Log().Error(ctx, err.Error())
-		return err
+		return err, ""
 	}
 	defer f.Close()
 
-	res, err := s.Client().ImageLoad(ctx, f, false)
+	res, err := s.Client().ImageLoad(ctx, f, true)
 	if err != nil {
-		g.Log().Error(ctx, err.Error())
-		return err
+		return err, ""
 	}
-	// 获取镜像名称
-	g.Dump(res.Body)
-
 	defer res.Body.Close()
 
-	err = docker.PrintDockerMsg(res.Body)
+	var stream model.ImageTag
+	err = json.NewDecoder(res.Body).Decode(&stream)
 	if err != nil {
-		g.Log().Error(ctx, err.Error())
-		return err
+		return err, ""
 	}
 
+	index := strings.Index(stream.Stream, ":")
+	result := strings.TrimSpace(stream.Stream[index+1:])
+
 	g.Log().Infof(ctx, "load image %s success", image)
-	return nil
+	return nil, result
 }

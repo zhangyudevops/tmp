@@ -70,9 +70,9 @@ func (s *sHarbor) ifExistProject(ctx context.Context, name string) (bool, error)
 // args: project name
 func (s *sHarbor) CreateProject(ctx context.Context, name string) error {
 	if ok, _ := s.ifExistProject(ctx, name); !ok {
-		url := s.Url() + "/projects?name=" + name
+		url := s.Url() + "/projects"
 		// @todo: 需要测试这里是否需要加ContentJson()， res的值为多少
-		r, err := s.Client().Post(ctx, url, g.Map{"public": false})
+		r, err := s.Client().ContentJson().Post(ctx, url, g.Map{"public": false, "project_name": name})
 		if err != nil {
 			g.Log().Error(ctx, err)
 			return err
@@ -180,10 +180,10 @@ func (s *sHarbor) DeleteTag(ctx context.Context, pName, rName, digest string) er
 func (s *sHarbor) CreateGcCron(ctx context.Context) error {
 	url := s.Url() + "/system/gc/schedule"
 	// get cron from config
-	cron, _ := g.Config().Get(ctx, "harbor.cron")
+	cronJob, _ := g.Config().Get(ctx, "harbor.cron")
 
 	scheduleCron := &model.Schedule{
-		Cron: cron.String(),
+		Cron: cronJob.String(),
 		Type: "Custom",
 	}
 	r, err := s.Client().ContentJson().Post(ctx, url, g.Map{"schedule": scheduleCron})

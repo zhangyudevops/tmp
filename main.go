@@ -18,6 +18,6 @@ func main() {
 	// initial k8s share informer client
 	_ = kube.Setup(stopCh)
 	// set up cron job
-	service.CronSetUp()
+	//service.CronSetUp()
 	cmd.Main.Run(gctx.New())
 }

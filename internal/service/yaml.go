@@ -18,11 +18,9 @@ func Yaml() *sYaml {
 
 // RenderYamlFile 渲染yaml模版，输出到指定的目录
 // 变量的key不能以.来区分，会识别不到
-func (s *sYaml) RenderYamlFile(ctx context.Context, file string) (err error) {
-	file = "/Users/zhangsan/Documents/devops/go/pack/test/test-cm.yaml"
-
+func (s *sYaml) RenderYamlFile(ctx context.Context, inFile, outFile string) (err error) {
 	// 创建模版对象
-	tmpl, err := template.ParseFiles(file)
+	tmpl, err := template.ParseFiles(inFile)
 	if err != nil {
 		return
 	}
@@ -44,14 +42,14 @@ func (s *sYaml) RenderYamlFile(ctx context.Context, file string) (err error) {
 	config := gconv.Map(data)
 
 	// 创建输出的yaml文件
-	outFile, err := os.Create("/Users/zhangsan/Documents/devops/go/pack/test/xx.yaml")
+	out, err := os.Create(outFile)
 	if err != nil {
 		return
 	}
-	defer outFile.Close()
+	defer out.Close()
 
 	// 渲染模版写入文件
-	if err = tmpl.Execute(outFile, config); err != nil {
+	if err = tmpl.Execute(out, config); err != nil {
 		return
 	}
 

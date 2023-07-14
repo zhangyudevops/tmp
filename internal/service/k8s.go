@@ -109,10 +109,6 @@ func (s *sK8S) GetDeployPods(ctx context.Context, namespace string, label map[st
 		pods = append(pods, po)
 	}
 
-	err = Update().PushNewImageToHarbor(ctx)
-	if err != nil {
-		g.Dump(err)
-	}
 	return
 }
 
@@ -295,7 +291,6 @@ func (s *sK8S) selectSourceTypeCreateOrUpdate(ctx context.Context, structure *un
 // CreateOrUpdateFromYamlFile 读取yaml文件，并解析对应yaml，并创建
 // 先判断对应资源是否存在，存在则升级，不存在则创建
 func (s *sK8S) CreateOrUpdateFromYamlFile(ctx context.Context, fileName string) (err error) {
-	fileName = "/Users/zhangsan/Documents/devops/go/pack/test/busybox-pod.yaml"
 	structure := s.parseYamlFile(ctx, fileName)
 	for _, st := range structure {
 		if st.GetNamespace() == "" {

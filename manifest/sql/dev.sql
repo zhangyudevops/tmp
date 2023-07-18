@@ -25,3 +25,12 @@ CREATE TABLE `image` (
                          PRIMARY KEY (`id`),
                          UNIQUE KEY `tag` (`tag`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='镜像详情';
+
+
+CREATE TABLE `static` (
+                          `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                          `name` varchar(50) NOT NULL COMMENT '应用名',
+                          `path` varchar(255) NOT NULL COMMENT '在pod中的目录',
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `name` (`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='存放应用以及对应pod nfs存储目录';

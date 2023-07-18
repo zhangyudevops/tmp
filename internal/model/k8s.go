@@ -17,6 +17,8 @@ type Deployment struct {
 	Labels          map[string]string `json:"labels"`
 }
 
+// @todo: 需要补一个containers的字段
+
 type Pod struct {
 	Name            string `json:"name"`
 	CreateTimeStamp int64  `json:"createTimeStamp"`

@@ -84,6 +84,22 @@ func (s *sK8S) GetDeploys(ctx context.Context, namespace string) (deploys []*mod
 	return
 }
 
+func (s *sK8S) DescribeDeploy(ctx context.Context, namespace, name string) (deploy *model.Deployment, err error) {
+	de, err := kube.Get().Apps().V1().Deployments().Lister().Deployments(namespace).Get(name)
+	if err != nil {
+		return
+	}
+
+	deploy = &model.Deployment{
+		Name:            de.Name,
+		CreateTimeStamp: de.CreationTimestamp.Unix(),
+		Namespace:       de.Namespace,
+		Labels:          deploy.Labels,
+	}
+
+	return
+}
+
 // GetDeployPods 获取指定namespace下deployment的所有pods信息
 func (s *sK8S) GetDeployPods(ctx context.Context, namespace string, label map[string]string) (pods []*model.Pod, err error) {
 	// 组装labelSelector

@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	"pack/internal/dao"
+	"pack/internal/model"
 	"pack/internal/model/entity"
 	"path/filepath"
 	"strings"
@@ -153,6 +154,76 @@ func (s *sUpdate) createOrUpdateFromYaml(ctx context.Context, path string) (err 
 	return
 }
 
+// getCopyToPod 获取需要拷贝文件的pod名称,
+// file 为要拷贝的文件或者目录的绝对路径,appName为应用名
+func (s *sUpdate) getCopyToPodList(ctx context.Context, namespace, appName string) (err error, podList []*model.Pod) {
+	// 获取label
+	ret, err := K8S().DescribeDeploy(ctx, namespace, appName)
+	if err != nil {
+		return
+	}
+	label := ret.Labels
+
+	// 获取pod
+	podList, err = K8S().GetDeployPods(ctx, namespace, label)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// copyFileToPod 把目录下的文件拷贝到pod中;
+// file 如果为目录，则命名方式为 namespace_source_name,
+// file 为要拷贝的文件或者目录的绝对路径
+func (s *sUpdate) copyFileToPod(ctx context.Context, file string) (err error) {
+	var (
+		nameIndex          int
+		namespace, appName string
+	)
+	dirName := filepath.Base(file)
+	switch gfile.IsDir(file) {
+	case true:
+		// 如果是目录，截取base目录
+		nameIndex = strings.Index(dirName, "_")
+		namespace = dirName[:nameIndex]
+		//source := dirName[nameIndex : nameIndex+1]
+		appName = dirName[nameIndex+1:]
+
+	case false:
+		// 如果是文件，去掉扩展名
+	}
+
+	// 获取pod列表
+	err, podList := s.getCopyToPodList(ctx, namespace, appName)
+	if err != nil {
+		return
+	}
+
+	// 获取pod名称
+	for i, pod := range podList {
+		if i == 0 {
+			// 组装execute数据
+			var execute *model.Execute
+			execute = &model.Execute{
+				Namespace: pod.Namespace,
+				PodName:   pod.Name,
+			}
+
+			// 组装pod内部目标目录
+			st, _ := dao.Static.Ctx(ctx).Where("name", appName).One()
+			destPath := st.Map()["path"].(string)
+
+			// 拷贝数据
+			if err = K8S().CopyToToPod(ctx, execute, file, destPath); err != nil {
+				return
+			}
+		}
+	}
+
+	return
+}
+
 // Update 使用升级包进行升级.
 // 升级目录结构：./images.tar.gz、./tmpl、./static. 模版文件以.yaml.tmpl结尾,yaml 文件以.yaml结尾
 func (s *sUpdate) Update(ctx context.Context) (err error) {
@@ -176,18 +247,28 @@ func (s *sUpdate) Update(ctx context.Context) (err error) {
 		return
 	}
 
-	// 4. 更新静态文件
-
-	// 5. 替换yaml模版为正式的yaml文件
+	// 4. 替换yaml模版为正式的yaml文件
 	tmplPath := extraPath + "/tmpl"
 	yamlPath := filepath.Dir(tmplPath) + "/yaml"
 	if err = s.modifyConfigMap(ctx, tmplPath, yamlPath); err != nil {
 		return
 	}
 
-	// 6. 使用yaml文件进行部署或者升级
+	// 5. 使用yaml文件进行部署或者升级
 	if err = s.createOrUpdateFromYaml(ctx, yamlPath); err != nil {
 		return
+	}
+
+	// 6. 更新静态文件
+	staticDir := extraPath + "/static"
+	dirList, err := gfile.ScanDir(staticDir, "*", false)
+	if err != nil {
+		return
+	}
+	for _, dir := range dirList {
+		if err = s.copyFileToPod(ctx, dir); err != nil {
+			return
+		}
 	}
 
 	return

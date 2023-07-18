@@ -45,4 +45,4 @@ gfcli:
   gen:
     dao:
       - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(localhost:3306)/tokyohot?loc=Local&parseTime=true"
-        tables: "user,setting,image"
+        tables: "user,setting,image,static"

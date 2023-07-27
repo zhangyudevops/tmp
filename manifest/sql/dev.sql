@@ -20,8 +20,9 @@ CREATE TABLE `setting` (
 
 CREATE TABLE `image` (
                          `id` int unsigned NOT NULL AUTO_INCREMENT,
-                         `name` varchar(60) COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用名称',
-                         `tag` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '镜像tag',
+                         `name` varchar(60)  NOT NULL COMMENT '应用名称',
+                         `tag` varchar(100)  NOT NULL COMMENT '镜像tag',
+                         `status` varchar(1) NOT NULL DEFAULT '1' COMMENT '1为最新，0为历史',
                          PRIMARY KEY (`id`),
                          UNIQUE KEY `tag` (`tag`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='镜像详情';

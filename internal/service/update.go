@@ -95,11 +95,15 @@ func (s *sUpdate) pushNewImageToHarbor(ctx context.Context, path string) (err er
 		}
 		if ret.IsEmpty() {
 			// 不存在，写入
+			if _, err = dao.Image.Ctx(ctx).Where("name", name).Data(g.Map{"status": 0}).Update(); err != nil {
+				return err
+			}
 			if _, err = dao.Image.Ctx(ctx).Data(imageInfo).Insert(); err != nil {
 				return err
 			}
 		}
 	}
+
 	return
 }
 
@@ -139,6 +143,30 @@ func (s *sUpdate) modifyConfigMap(ctx context.Context, tempPath, yamlPath string
 	return
 }
 
+// based directory create yaml file from template file,
+// path is the tmpl config directory absolute path
+func (s *sUpdate) modifyDirConfigFile(ctx context.Context, path string) (err error) {
+	// modify service directory
+	servicePath := path + "/service"
+	if err = s.modifyConfigMap(ctx, servicePath, servicePath); err != nil {
+		return
+	}
+
+	// modify configmap directory
+	configmapPath := path + "/configmap"
+	if err = s.modifyConfigMap(ctx, configmapPath, configmapPath); err != nil {
+		return
+	}
+
+	// modify source directory
+	sourcePath := path + "/source"
+	if err = s.modifyConfigMap(ctx, sourcePath, sourcePath); err != nil {
+		return
+	}
+
+	return
+}
+
 func (s *sUpdate) createOrUpdateFromYaml(ctx context.Context, path string) (err error) {
 	yamlList, err := Path().GetFile(ctx, path, "*.yaml")
 	if err != nil {
@@ -149,6 +177,30 @@ func (s *sUpdate) createOrUpdateFromYaml(ctx context.Context, path string) (err 
 		if err = K8S().CreateOrUpdateFromYamlFile(ctx, yaml); err != nil {
 			return
 		}
+	}
+
+	return
+}
+
+// based different directory, use yaml file create or update k8s resource,
+// path is the tmpl directory absolute path
+func (s *sUpdate) createOrUpdateFromYamlFile(ctx context.Context, path string) (err error) {
+	// create or update service
+	servicePath := path + "/service"
+	if err = s.createOrUpdateFromYaml(ctx, servicePath); err != nil {
+		return
+	}
+
+	// create or update configmap
+	configmapPath := path + "/configmap"
+	if err = s.createOrUpdateFromYaml(ctx, configmapPath); err != nil {
+		return
+	}
+
+	// create or update source
+	sourcePath := path + "/source"
+	if err = s.createOrUpdateFromYaml(ctx, sourcePath); err != nil {
+		return
 	}
 
 	return
@@ -249,13 +301,12 @@ func (s *sUpdate) Update(ctx context.Context) (err error) {
 
 	// 4. 替换yaml模版为正式的yaml文件
 	tmplPath := extraPath + "/tmpl"
-	yamlPath := filepath.Dir(tmplPath) + "/yaml"
-	if err = s.modifyConfigMap(ctx, tmplPath, yamlPath); err != nil {
+	if err = s.modifyDirConfigFile(ctx, tmplPath); err != nil {
 		return
 	}
 
 	// 5. 使用yaml文件进行部署或者升级
-	if err = s.createOrUpdateFromYaml(ctx, yamlPath); err != nil {
+	if err = s.createOrUpdateFromYamlFile(ctx, tmplPath); err != nil {
 		return
 	}
 

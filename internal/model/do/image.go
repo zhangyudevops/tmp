@@ -14,4 +14,5 @@ type Image struct {
 	Id     interface{} //
 	Name   interface{} // 应用名称
 	Tag    interface{} // 镜像tag
+	Status interface{} // 1为最新，0为历史
 }

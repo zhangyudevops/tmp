@@ -7,6 +7,7 @@ import (
 	"os"
 	"pack/internal/dao"
 	"pack/internal/model/entity"
+	"pack/utility/util"
 	"text/template"
 )
 
@@ -41,6 +42,18 @@ func (s *sYaml) RenderYamlFile(ctx context.Context, inFile, outFile string) (err
 	}
 	config := gconv.Map(data)
 
+	// 获取镜像列表
+	v, err := dao.Image.Ctx(ctx).Fields("name,tag").Where("status=?", "1").All()
+	if err != nil {
+		return
+	}
+
+	imageEnv := make(map[string]interface{})
+	for _, record := range v.List() {
+		imageEnv[record["name"].(string)] = record["tag"].(string)
+	}
+
+	config = util.MergeMap(config, imageEnv)
 	// 创建输出的yaml文件
 	out, err := os.Create(outFile)
 	if err != nil {

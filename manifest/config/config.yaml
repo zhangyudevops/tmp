@@ -38,8 +38,12 @@ token:
   cacheMode: 2
 
 database:
+  logger:
+    level:   "all"
+    stdout:  true
   default:
     - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(localhost:3306)/tokyohot?loc=Local&parseTime=true"
+      debug:   true
 
 gfcli:
   gen:

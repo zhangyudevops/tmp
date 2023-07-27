@@ -6,7 +6,8 @@ package entity
 
 // Image is the golang structure for table image.
 type Image struct {
-	Id   uint   `json:"id"   ` //
-	Name string `json:"name" ` // 应用名称
-	Tag  string `json:"tag"  ` // 镜像tag
+	Id     uint   `json:"id"     ` //
+	Name   string `json:"name"   ` // 应用名称
+	Tag    string `json:"tag"    ` // 镜像tag
+	Status string `json:"status" ` // 1为最新，0为历史
 }

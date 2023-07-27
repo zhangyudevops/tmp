@@ -20,16 +20,18 @@ type ImageDao struct {
 
 // ImageColumns defines and stores column names for table image.
 type ImageColumns struct {
-	Id   string //
-	Name string // 应用名称
-	Tag  string // 镜像tag
+	Id     string //
+	Name   string // 应用名称
+	Tag    string // 镜像tag
+	Status string // 1为最新，0为历史
 }
 
 // imageColumns holds the columns for table image.
 var imageColumns = ImageColumns{
-	Id:   "id",
-	Name: "name",
-	Tag:  "tag",
+	Id:     "id",
+	Name:   "name",
+	Tag:    "tag",
+	Status: "status",
 }
 
 // NewImageDao creates and returns a new DAO object for table data access.

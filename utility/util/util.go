@@ -24,3 +24,11 @@ func HashPassword(password string, salt string) string {
 	_, _ = hashed.Write([]byte(password))
 	return hex.EncodeToString(hashed.Sum(nil))
 }
+
+// MergeMap 合并两个map
+func MergeMap(m1, m2 map[string]interface{}) map[string]interface{} {
+	for k, v := range m2 {
+		m1[k] = v
+	}
+	return m1
+}

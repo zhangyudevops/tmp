@@ -29,7 +29,7 @@ func (s *sUpdate) uncompressedUpdatePackage(ctx context.Context, pPath, ePath st
 		}
 	}
 
-	// get the newest package
+	// get the newest pkg
 	updatePkgPath, err := File().GetNewestDir(ctx, pPath)
 	if err != nil {
 		return

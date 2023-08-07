@@ -8,19 +8,19 @@ import (
 	"pack/internal/dao/internal"
 )
 
-// internalSettingDao is internal type for wrapping internal DAO implements.
-type internalSettingDao = *internal.SettingDao
+// internalUploadDao is internal type for wrapping internal DAO implements.
+type internalUploadDao = *internal.UploadDao
 
-// settingDao is the data access object for table setting.
+// uploadDao is the data access object for table upload.
 // You can define custom methods on it to extend its functionality as you wish.
-type settingDao struct {
-	internalSettingDao
+type uploadDao struct {
+	internalUploadDao
 }
 
 var (
-	// Setting is globally public accessible object for table setting operations.
-	Setting = settingDao{
-		internal.NewSettingDao(),
+	// Upload is globally public accessible object for table upload operations.
+	Upload = uploadDao{
+		internal.NewUploadDao(),
 	}
 )
 

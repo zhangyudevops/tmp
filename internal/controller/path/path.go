@@ -16,7 +16,7 @@ func Path() *cPath {
 
 func (c *cPath) ListFilesOrDirs(ctx context.Context, req *apiv1.FilesOrDirsListReq) (res *apiv1.FilesOrDirsListRes, err error) {
 	if req.Path == "" {
-		path, _ := g.Config().Get(ctx, "package.path")
+		path, _ := g.Config().Get(ctx, "pkg.path")
 		req.Path = path.String()
 	}
 	// if req.Path is directory, list the first layer files and dirs, if req.Path is file, return the file name

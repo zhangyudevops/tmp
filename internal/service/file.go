@@ -5,10 +5,12 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gfile"
 	"io"
 	"os"
+	"pack/internal/dao"
 	"path/filepath"
 	"strings"
 	"time"
@@ -20,16 +22,39 @@ func File() *sFile {
 	return &sFile{}
 }
 
-func (s *sFile) Upload(ctx context.Context, inFile *ghttp.UploadFiles, path string) (fileList []string, err error) {
-	err = Path().CreateDir(ctx, path)
+func (s *sFile) Upload(ctx context.Context, inFile *ghttp.UploadFile, md5 string) (err error) {
+	// 获取文件上传路径
+	pkgVar, _ := g.Cfg().Get(ctx, "package.path")
+	err = Path().CreateDir(ctx, pkgVar.String())
 	if err != nil {
-		return nil, err
+		return
 	}
-	fileList, err = inFile.Save(path)
+	//查询当前包名的md5是否存在
+	record, err := dao.Upload.Ctx(ctx).Where("name", inFile.Filename).Where("md5", md5).All()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return fileList, nil
+	if record.IsEmpty() {
+		// 保存上传文件
+		_, err = inFile.Save(pkgVar.String())
+		if err != nil {
+			return
+		}
+		// 保存上传记录
+		_, err = dao.Upload.Ctx(ctx).Insert(g.Map{
+			"name":    inFile.Filename,
+			"md5":     md5,
+			"path":    pkgVar.String(),
+			"up_time": time.Now(),
+		})
+		if err != nil {
+			return
+		}
+		return
+	}
+
+	// 如果不存在 ，返回错误
+	return fmt.Errorf("文件已经存在，轻勿重复上传")
 }
 
 // ExtraTarGzip 解压tar.gz文件

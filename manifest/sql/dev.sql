@@ -35,3 +35,23 @@ CREATE TABLE `static` (
                           PRIMARY KEY (`id`),
                           UNIQUE KEY `name` (`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='存放应用以及对应pod nfs存储目录';
+
+
+CREATE TABLE `upload` (
+                          `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                          `name` varchar(50) NOT NULL COMMENT '升级包名',
+                          `md5` varchar(50) NOT NULL COMMENT 'md5值',
+                          `up_time` datetime NOT NULL COMMENT '上传时间',
+                          PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='上传升级包';
+
+
+CREATE TABLE `config` (
+                          `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                          `name` varchar(100) NOT NULL,
+                          `value` varchar(255) DEFAULT NULL,
+                          `app` varchar(50) NOT NULL,
+                          `comment` text,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `name` (`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统环境变量配置表';

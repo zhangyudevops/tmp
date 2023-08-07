@@ -28,7 +28,7 @@ script:
   path: "manifest/script"
 
 package:
-  path: "manifest/package"
+  path: "manifest/pkg"
 
 redis:
   default:
@@ -49,4 +49,4 @@ gfcli:
   gen:
     dao:
       - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(localhost:3306)/tokyohot?loc=Local&parseTime=true"
-        tables: "user,setting,image,static"
+        tables: "user,config,image,static,upload"

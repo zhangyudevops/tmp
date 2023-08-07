@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/gogf/gf/v2/util/gconv"
 	"os"
 	"pack/internal/dao"
 	"pack/internal/model/entity"
@@ -18,7 +16,8 @@ func Yaml() *sYaml {
 }
 
 // RenderYamlFile 渲染yaml模版，输出到指定的目录
-// 变量的key不能以.来区分，会识别不到
+// 变量的key不能以.来区分，会识别不到，所以这里用_来区分，
+// key的名称namespace_appName_key来命名
 func (s *sYaml) RenderYamlFile(ctx context.Context, inFile, outFile string) (err error) {
 	// 创建模版对象
 	tmpl, err := template.ParseFiles(inFile)
@@ -27,20 +26,19 @@ func (s *sYaml) RenderYamlFile(ctx context.Context, inFile, outFile string) (err
 	}
 
 	// 获取配置数据
-	var setting entity.Setting
-	err = dao.Setting.Ctx(ctx).Scan(&setting)
+	// 改了表结构，这里需要重构，把查询出的结果转变为map
+	var (
+		setting []*entity.Config
+		config  = make(map[string]interface{})
+	)
+	err = dao.Config.Ctx(ctx).Scan(&setting)
 	if err != nil {
 		return
 	}
-	configs := setting.Config
-
-	// 字符串转换为json
-	var data interface{}
-	err = json.Unmarshal([]byte(configs), &data)
-	if err != nil {
-		return
+	for _, set := range setting {
+		// 把name和value的值转换为map对应的key和value
+		config[set.Name] = set.Value
 	}
-	config := gconv.Map(data)
 
 	// 获取镜像列表
 	v, err := dao.Image.Ctx(ctx).Fields("name,tag").Where("status=?", "1").All()

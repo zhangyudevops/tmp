@@ -7,14 +7,18 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"pack/internal/controller/clean"
+	"pack/internal/controller/config"
 	"pack/internal/controller/docker"
 	"pack/internal/controller/file"
 	"pack/internal/controller/harbor"
 	"pack/internal/controller/k8s"
 	"pack/internal/controller/pack"
 	"pack/internal/controller/path"
+	"pack/internal/controller/pkg"
+	"pack/internal/controller/update"
 	"pack/internal/controller/user"
 	"pack/internal/dao"
+	"pack/internal/model"
 	"pack/internal/model/entity"
 	"pack/utility/util"
 )
@@ -58,8 +62,38 @@ var (
 					pack.Pack(),
 					user.User(),
 					k8s.K8S(),
+					pkg.Pkg(),
+					update.Update(),
+					config.Config(),
 				)
 			})
+
+			// ws接口
+			var msg model.Message
+			s.BindHandler("/ws", func(r *ghttp.Request) {
+				ws, err := r.WebSocket()
+				if err != nil {
+					g.Log().Error(ctx, err)
+					r.Exit()
+				}
+
+				for {
+					_, _, err := ws.ReadMessage()
+					if err != nil {
+						return
+					}
+					// base msg type return message
+					switch msg.Type {
+					case "update":
+						err = ws.WriteJSON("log")
+						if err != nil {
+							g.Log().Error(ctx, err)
+							return
+						}
+					}
+				}
+			})
+
 			s.Run()
 			return nil
 		},

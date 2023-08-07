@@ -13,10 +13,10 @@ func Pack() *sPack {
 }
 
 // PackTarFiles pack tar files
-// if the package.path is /data/package, the newest package is /data/package/tmp
-// check the directory /data/package/tmp, if the directory was existed, delete it, and create a new directory
+// if the pkg.path is /data/pkg, the newest pkg is /data/pkg/tmp
+// check the directory /data/pkg/tmp, if the directory was existed, delete it, and create a new directory
 func (s *sPack) PackTarFiles(ctx context.Context, images []string) (err error) {
-	pkgPath, _ := g.Config().Get(ctx, "package.path")
+	pkgPath, _ := g.Config().Get(ctx, "pkg.path")
 	packageDir := pkgPath.String() + "/tmp"
 	// if the directory was existed, delete it
 	if gfile.Exists(packageDir) {

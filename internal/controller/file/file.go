@@ -14,14 +14,12 @@ func File() *cFile {
 }
 
 func (c *cFile) Upload(ctx context.Context, req *apiv1.FileUploadReq) (res *apiv1.FileUploadRes, err error) {
-	fileList, err := service.File().Upload(ctx, req.File, req.Path)
+	err = service.File().Upload(ctx, req.File, req.MD5)
 	if err != nil {
 		g.Log().Error(ctx, err.Error())
-		return nil, err
+		return
 	}
-	g.Log().Infof(ctx, "上传文件成功: %s", fileList)
-	res = &apiv1.FileUploadRes{
-		Name: fileList,
-	}
+	g.Log().Infof(ctx, "上传文件成功: %s", req.File.Filename)
+
 	return
 }

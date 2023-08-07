@@ -6,11 +6,14 @@ package do
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// Setting is the golang structure of table setting for DAO operations like Where/Data.
-type Setting struct {
-	g.Meta `orm:"table:setting, do:true"`
+// Upload is the golang structure of table upload for DAO operations like Where/Data.
+type Upload struct {
+	g.Meta `orm:"table:upload, do:true"`
 	Id     interface{} //
-	Config interface{} // 配置文件变量全量json
+	Name   interface{} // 升级包名
+	Md5    interface{} // md5值
+	UpTime *gtime.Time // 上传时间
 }

@@ -283,6 +283,11 @@ func (s *sUpdate) Update(ctx context.Context) (err error) {
 	pkgPath := pkgVar.String()
 	extraPath := pkgPath + "/tmp"
 
+	// 0. 清除redis的config的缓存
+	if _, err = g.Redis().Do(ctx, "DEL", "config"); err != nil {
+		return
+	}
+
 	// 1. 解压升级包
 	if err = s.uncompressedUpdatePackage(ctx, pkgPath, extraPath); err != nil {
 		return
@@ -323,4 +328,20 @@ func (s *sUpdate) Update(ctx context.Context) (err error) {
 	}
 
 	return
+}
+
+// GetImagesList 从库里查询出镜像列表
+func (s *sUpdate) GetImagesList(ctx context.Context) map[string]interface{} {
+	v, err := dao.Image.Ctx(ctx).Fields("name,tag").Where("status=?", "1").All()
+	if err != nil {
+		g.Log().Error(ctx, "从库获取镜像最新的镜像列表出错", err)
+		return nil
+	}
+
+	imageEnv := make(map[string]interface{})
+	for _, record := range v.List() {
+		imageEnv[record["name"].(string)] = record["tag"].(string)
+	}
+
+	return imageEnv
 }

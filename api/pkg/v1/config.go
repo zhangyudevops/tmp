@@ -12,3 +12,13 @@ type VarConfigReq struct {
 type VarConfigRes struct {
 	Config []*entity.Config `json:"config"`
 }
+
+type UpdateVarConfigReq struct {
+	g.Meta `path:"/config/update" method:"post" tags:"更新配置"`
+	Id     int64  `json:"id"`
+	Value  string `json:"value"`
+}
+
+type UpdateVarConfigRes struct {
+	Config string `json:"config"`
+}

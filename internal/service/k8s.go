@@ -21,6 +21,7 @@ import (
 	"pack/internal/model"
 	"path"
 	"strings"
+	"time"
 	_ "unsafe"
 )
 
@@ -316,6 +317,10 @@ func (s *sK8S) CreateOrUpdateFromYamlFile(ctx context.Context, fileName string) 
 			return
 		}
 	}
+
+	// 为了防止运行太快，每一个运行间隔10s
+	time.Sleep(10 * time.Second)
+	g.Log().Debugf(ctx, "%s等待10s，继续运行", fileName)
 
 	return
 }

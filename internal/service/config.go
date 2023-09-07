@@ -15,7 +15,7 @@ func Config() *sConfig {
 
 func (s *sConfig) GetVariableConfig(ctx context.Context) ([]*entity.Config, error) {
 	var setting []*entity.Config
-	err := dao.Config.Ctx(ctx).Order("app").Scan(&setting)
+	err := dao.Config.Ctx(ctx).Order("app").Order("id").Scan(&setting)
 	if err != nil {
 		return nil, err
 	}
